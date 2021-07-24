@@ -1,11 +1,15 @@
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+from scipy import integrate
+from scipy.integrate import odeint
+import streamlit as st
+import data_visualization
 
 class Model():
     # membrane capacitance
     # UNITS: uF/cm^2
-    C_m = 0.9
+    C_m = 1
 
     # max conducatance  
     # UNIT: mS/cm^2
@@ -23,7 +27,7 @@ class Model():
     # UNITS: mV, mS
     V = -70
     t_start = 0
-    t_final = 50
+    t_final = 60
     delta_t = 1
 
     # transition rates for activation and inactivation of potassium and sodium channels
@@ -48,13 +52,13 @@ class Model():
 
     
     # steady state solutions for transition rates 
-    def n_inf(self, V):
+    def n_inf(self, V=0):
         return (self.alpha_n(V)) / (self.alpha_n(V) + self.beta_n(V))
 
-    def m_inf(self, V):
+    def m_inf(self, V=0):
         return (self.alpha_m(V)) / (self.alpha_m(V) + self.beta_m(V))
     
-    def h_inf(self, V):
+    def h_inf(self, V=0):
         return (self.alpha_h(V)) / (self.alpha_h(V) + self.beta_h(V))
 
     
@@ -109,39 +113,36 @@ class Model():
     def i_tot(self, i_na, i_k, i_l):
         return i_na + i_k + i_l
 
+    def input_current(self, t):
+        if 5 <= t < 6:
+            return 150
+        elif 15 <= t < 16:
+            return 50
+        return 0
+
+    def integrate_(self, y, t_0):
+        integrals = np.zeros((4, ))
+
+        V = y[0]
+        n = y[1]
+        m = y[2]
+        h = y[3]
+
+        i_tot = self.i_tot(self.i_na(V, m, h), self.i_k(V, n), self.i_l(V))
+        
+        integrals[0] = (self.input_current(t_0) - i_tot)/ self.C_m
+        integrals[1] = self.dndt(V, n)
+        integrals[2] = self.dmdt(V, m)
+        integrals[3] = self.dhdt(V, h)
+
+        return integrals
 
     def main(self):
-        V = -70
-        data = np.zeros((self.t_final + 1))
-        data[0] = V
-
-        for t in range(self.t_final):
-            # set input current
-            # UNITS: uA/cm^2
-            if t > 10 and t < 15:
-                I_input = 50
-            else:
-                I_input = 0
-            
-            n = 0
-            m = 0
-            h = 0
-
-            n = self.calculate_next_state(n, self.dndt(V, n))
-            m = self.calculate_next_state(m, self.dmdt(V, m))
-            h = self.calculate_next_state(h, self.dhdt(V, h))
-
-            print(self.dndt(V, n), self.dmdt(V, m), self.dhdt(V, h))
-            i_tot = self.i_tot(self.i_na(V, m, h), self.i_k(V, n), self.i_l(V))
-            dv_dt = (I_input - i_tot)/ self.C_m
-
-            V = self.calculate_next_state(V, dv_dt)    
-            data[t + 1] = V
-            plt.scatter(t, V)
-            #plt.plot(data)
-            plt.pause(0.05)
-        plt.show()
-
+        stimulus = map(self.input_current, range(self.t_final))
+        Y = np.array([-70, self.n_inf(), self.m_inf(), self.h_inf()])
+        T = np.linspace(0, self.t_final)
+        integrals = odeint(self.integrate_, Y, T)
+        data_visualization.streamlit_init(np.fromiter(stimulus, dtype=int), integrals[:, 0])
 
 if __name__ == '__main__':
     model = Model()
