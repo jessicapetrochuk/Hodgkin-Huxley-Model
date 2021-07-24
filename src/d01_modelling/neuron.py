@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from scipy import integrate
 from scipy.integrate import odeint
 import streamlit as st
-import data_visualization
 
 class Model():
     # membrane capacitance
@@ -116,8 +115,8 @@ class Model():
     def input_current(self, t):
         if 5 <= t < 6:
             return 150
-        elif 15 <= t < 16:
-            return 50
+        elif 40 <= t < 41:
+            return 100
         return 0
 
     def integrate_(self, y, t_0):
@@ -136,14 +135,3 @@ class Model():
         integrals[3] = self.dhdt(V, h)
 
         return integrals
-
-    def main(self):
-        stimulus = map(self.input_current, range(self.t_final))
-        Y = np.array([-70, self.n_inf(), self.m_inf(), self.h_inf()])
-        T = np.linspace(0, self.t_final)
-        integrals = odeint(self.integrate_, Y, T)
-        data_visualization.streamlit_init(np.fromiter(stimulus, dtype=int), integrals[:, 0])
-
-if __name__ == '__main__':
-    model = Model()
-    model.main()
