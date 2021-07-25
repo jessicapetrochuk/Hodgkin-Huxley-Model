@@ -24,7 +24,6 @@ class Model():
 
     # initial conditions at t=0
     # UNITS: mV, mS
-    V = -70
     t_start = 0
     t_final = 60
     delta_t = 1
@@ -113,7 +112,7 @@ class Model():
         return i_na + i_k + i_l
 
     def input_current(self, t, max_current):
-        if 5 <= t <= 6 or 40 <= t <= 41:
+        if 15 <= t <= 16 or 40 <= t <= 41:
             return max_current
         return 0
 
