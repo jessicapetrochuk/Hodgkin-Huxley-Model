@@ -51,13 +51,13 @@ class Model():
 
     
     # steady state solutions for transition rates 
-    def n_inf(self, V=0):
+    def n_inf(self, V):
         return (self.alpha_n(V)) / (self.alpha_n(V) + self.beta_n(V))
 
-    def m_inf(self, V=0):
+    def m_inf(self, V):
         return (self.alpha_m(V)) / (self.alpha_m(V) + self.beta_m(V))
     
-    def h_inf(self, V=0):
+    def h_inf(self, V):
         return (self.alpha_h(V)) / (self.alpha_h(V) + self.beta_h(V))
 
     
@@ -112,14 +112,12 @@ class Model():
     def i_tot(self, i_na, i_k, i_l):
         return i_na + i_k + i_l
 
-    def input_current(self, t):
-        if 5 <= t < 6:
-            return 150
-        elif 40 <= t < 41:
-            return 100
+    def input_current(self, t, max_current):
+        if 5 <= t <= 6 or 40 <= t <= 41:
+            return max_current
         return 0
 
-    def integrate_(self, y, t_0):
+    def integrate_(self, y, t_0, max_current):
         integrals = np.zeros((4, ))
 
         V = y[0]
@@ -129,9 +127,10 @@ class Model():
 
         i_tot = self.i_tot(self.i_na(V, m, h), self.i_k(V, n), self.i_l(V))
         
-        integrals[0] = (self.input_current(t_0) - i_tot)/ self.C_m
+        integrals[0] = (self.input_current(t_0, max_current) - i_tot)/ self.C_m
         integrals[1] = self.dndt(V, n)
         integrals[2] = self.dmdt(V, m)
         integrals[3] = self.dhdt(V, h)
 
         return integrals
+       
