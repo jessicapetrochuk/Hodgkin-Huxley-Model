@@ -11,7 +11,7 @@ git clone https://github.com/jessicapetrochuk/Hodgkin-Huxley-Model.git
 ```
 Install all requirements
 ```
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 Run streamlit
 ```
