@@ -2,7 +2,7 @@
 This is a simple implementation of the hodgkin huxley model of a neuron, simulating a single action potential propagating through a cell. 
 
 ## Prerequisites
-This requires Python 3.9 or greater
+This requires Python 3.8 or greater
 
 ## Installation
 Clone repository and cd into it 
