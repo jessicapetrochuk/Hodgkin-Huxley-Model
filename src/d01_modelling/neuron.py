@@ -10,6 +10,15 @@ class Model():
     # UNITS: uF/cm^2
     C_m = 1
 
+    # membrane conductance
+    # TODO: Change to make this a user input
+    # UNITS: S/cm^2
+    g_m = 0.1
+
+    # length constant
+    # UNITS: mm
+    lambda_m = 1
+
     # max conducatance  
     # UNIT: mS/cm^2
     g_na_max = 120

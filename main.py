@@ -2,6 +2,7 @@ import numpy as np
 from scipy.integrate import odeint
 from src.d02_visualization.streamlit_init import streamlit_init
 from src.d01_modelling.neuron import Model
+from src.d01_modelling.dendrite import propogate_signal
 import streamlit as st
 
 def main(Model):
@@ -16,8 +17,8 @@ def main(Model):
     n = integrals[:, 1]
     m = integrals[:, 2]
     h = integrals[:, 3]
-    streamlit_init(np.fromiter(stimulus, dtype=int), voltage, n, m, h)
-
+    propogated_1, propogated_2, propogated_3 = propogate_signal(voltage, Model.C_m, Model.g_m, Model.lambda_m)
+    streamlit_init(np.fromiter(stimulus, dtype=int), voltage, n, m, h, propogated_1, propogated_2, propogated_3)
 
 if __name__ == '__main__':
     model = Model()
