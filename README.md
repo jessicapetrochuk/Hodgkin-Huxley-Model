@@ -1,3 +1,5 @@
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 # Hodgkin Huxley Model
 This is a simple implementation of the hodgkin huxley model of a neuron, simulating a single action potential propagating through a cell. 
 
