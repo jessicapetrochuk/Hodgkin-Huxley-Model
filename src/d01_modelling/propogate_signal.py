@@ -5,12 +5,12 @@ import numpy as np
 from src.d01_modelling.neuron_constants import neuron_const
 
 transition_rate_equations = {
-    "alpha_n": lambda V: (0.01 * (10 - V)) / (math.exp((10 - V) / 10) - 1),
-    "beta_n": lambda V: 0.125 * math.exp(-V / 80),
-    "alpha_m": lambda V: (0.1 * (25 - V)) / (math.exp((25 - V) / 10) - 1),
-    "beta_m": lambda V: 4 * math.exp(-V / 18),
-    "alpha_h": lambda V: 0.07 * math.exp(-V / 20),
-    "beta_h": lambda V: 1 / (math.exp((30 - V) / 10) + 1),
+    "alpha_n": lambda V: (0.02 * (V - 25)) / (1 - math.exp((25 - V) / 9)),
+    "beta_n": lambda V: (-0.002 * (V - 25)) / (1 - math.exp((V - 25) / 9)),
+    "alpha_m": lambda V: (0.182 * (V + 35)) / (1 - math.exp((-35 - V) / 9)),
+    "beta_m": lambda V: (-0.124 * (V + 35)) / (1 - math.exp((35 + V) / 9)),
+    "alpha_h": lambda V: 0.25 * math.exp((-90 - V) / 12),
+    "beta_h": lambda V: (0.25 * math.exp((V + 62) / 6)) / (math.exp((V + 90) / 12)),
 }
 
 
@@ -39,7 +39,7 @@ def g_na(m, h) -> float:
         m (float): probability of sodium channel being open
         h (float): probability of sodium channel inactivation gate being open
     """
-    return neuron_const["g_na_max"] * m ** 3 * h
+    return neuron_const["g_na_max"] * h * m ** 3
 
 
 def g_k(n) -> float:
@@ -66,7 +66,7 @@ def steady_state_transition_state(V, trans_rate) -> float:
     return alpha_x / (alpha_x + beta_x)
 
 
-def current(V, g, E):
+def channel_current(V, g, E) -> float:
     """Calculates present current through channel
     Args:
         V (float): voltage
@@ -76,18 +76,26 @@ def current(V, g, E):
     return g * (V - E)
 
 
-def input_current(t, max_current):
+def input_current(t, max_current) -> float:
     """Returns the input current at a given time t
     Args:
         t (int): current time in sec
-        max_current (int): max_current during neuronal propogation
+        max_current (int): current during neuronal propogation
     """
-    if 15 <= t <= 16 or 40 <= t <= 41:
+    if t == 0 or t == 1:
+        return 0
+    elif t % 20 >= 0 and t % 20 <= 1:
         return max_current
     return 0
 
 
-def integrate(y, t_0, max_current):
+def integrate(y, t, current) -> np.array:
+    """Creates a set of ordinary differential equations
+    Args:
+        y (np.array): present state of voltage, n, m, and h
+        t (float): present time
+        current (int): present amount of current flowing through the neuron
+    """
     integrals = np.zeros((4,))
 
     V = y[0]
@@ -95,19 +103,17 @@ def integrate(y, t_0, max_current):
     m = y[2]
     h = y[3]
 
-    i_na = current(V, g_na(m, h), neuron_const["E_na"])
-    i_k = current(V, g_k(n), neuron_const["E_k"])
-    i_l = current(V, g_l(), neuron_const["E_l"])
+    i_na = channel_current(V, g_na(m, h), neuron_const["E_na"])
+    i_k = channel_current(V, g_k(n), neuron_const["E_k"])
+    i_l = channel_current(V, g_l(), neuron_const["E_l"])
     i_tot = i_na + i_k + i_l
 
-    integrals[0] = (input_current(t_0, max_current) - i_tot) / neuron_const["C_m"]
+    integrals[0] = (input_current(t, current) - i_tot) / neuron_const["C_m"]
 
     alpha_n = transition_rate(V, "alpha_n")
     beta_n = transition_rate(V, "beta_n")
-
     alpha_m = transition_rate(V, "alpha_m")
     beta_m = transition_rate(V, "beta_m")
-
     alpha_h = transition_rate(V, "alpha_h")
     beta_h = transition_rate(V, "beta_h")
 

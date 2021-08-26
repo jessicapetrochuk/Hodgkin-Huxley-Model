@@ -21,3 +21,6 @@ streamlit run main.py
 ```
 ## Usage
 Change the "voltage of stimulus" slider to see how the neuron changes depending on how large the input voltage is.
+
+## Acknowledgements
+Values for constants retreived from: https://neuronaldynamics.epfl.ch/online/Ch2.S2.html
