@@ -4,6 +4,7 @@ import numpy as np
 
 from src.d01_modelling.neuron_constants import neuron_const
 
+
 transition_rate_equations = {
     "alpha_n": lambda V: (0.02 * (V - 25)) / (1 - math.exp((25 - V) / 9)),
     "beta_n": lambda V: (-0.002 * (V - 25)) / (1 - math.exp((V - 25) / 9)),
@@ -82,9 +83,7 @@ def input_current(t, max_current) -> float:
         t (int): current time in sec
         max_current (int): current during neuronal propogation
     """
-    if t == 0 or t == 1:
-        return 0
-    elif t % 20 >= 0 and t % 20 <= 1:
+    if t >= 20 and t <= 21:
         return max_current
     return 0
 
