@@ -7,7 +7,7 @@ from src.d01_modelling.propogate_signal import integrate, input_current, steady_
 from src.d01_modelling.dendrite import propogate_signal
 from src.d02_visualization.streamlit_init import streamlit_init
 
-
+I AM TESTING
 def main():
     st.set_page_config(layout="wide")
     initial_voltage = -65
